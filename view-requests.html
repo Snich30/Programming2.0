@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Просмотр заявок</h1>
+    <!-- Форма для поиска заявки -->
+    <form id="searchForm">
+        <input type="text" id="searchInput" placeholder="Поиск по номеру или параметрам">
+        <button type="submit">Найти</button>
+    </form>
+    <!-- Блок для отображения результатов поиска -->
+    <div id="searchResults"></div>
+    <!-- Список заявок -->
+    <div id="requests"></div>
+    <a href="/">Добавить заявку</a>
+
+    <script>
+        async function fetchRequests() {
+            const response = await fetch('/requests');
+            const data = await response.json();
+            const requestsDiv = document.getElementById('requests');
+            requestsDiv.innerHTML = '';
+            data.forEach(request => {
+                requestsDiv.innerHTML += `
+                    <div>
+                        <h2>Заявка ID: ${request.id}</h2>
+                        <p>Дата добавления: ${request.date_added}</p>
+                        <p>Вид авто: ${request.car_type}</p>
+                        <p>Модель авто: ${request.car_model}</p>
+                        <p>Описание проблемы: ${request.problem_description}</p>
+                        <p>ФИО клиента: ${request.client_name}</p>
+                        <p>Номер телефона клиента: ${request.client_phone}</p>
+                        <p>Статус: ${request.status}</p>
+                    </div>
+                `;
+            });
+        }
+
+        fetchRequests();
+
+        // Обработчик отправки формы для поиска заявок
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const searchQuery = document.getElementById('searchInput').value.trim();
+
+            try {
+                const response = await fetch(`/requests?search=${searchQuery}`);
+                const data = await response.json();
+                const searchResultsDiv = document.getElementById('searchResults');
+                searchResultsDiv.innerHTML = '';
+                
+                if (data.length === 0) {
+                    searchResultsDiv.innerHTML = '<p>Заявки не найдены.</p>';
+                } else {
+                    data.forEach(request => {
+                        searchResultsDiv.innerHTML += `
+                            <div>
+                                <h2>Заявка ID: ${request.id}</h2>
+                                <p>Дата добавления: ${request.date_added}</p>
+                                <p>Вид авто: ${request.car_type}</p>
+                                <p>Модель авто: ${request.car_model}</p>
+                                <p>Описание проблемы: ${request.problem_description}</p>
+                                <p>ФИО клиента: ${request.client_name}</p>
+                                <p>Номер телефона клиента: ${request.client_phone}</p>
+                                <p>Статус: ${request.status}</p>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                const searchResultsDiv = document.getElementById('searchResults');
+                searchResultsDiv.innerHTML = '<p>Ошибка при поиске заявок.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр заявок</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Просмотр заявок</h1>
+    <div id="requestsList"></div>
+    <div id="message"></div> -->
+
+    <!-- Модальное окно для редактирования заявки 
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Редактирование заявки</h2>
+            <form id="editForm">
+                <input type="text" id="editDateAdded" placeholder="Дата добавления" required>
+                <input type="text" id="editCarType" placeholder="Вид авто" required>
+                <input type="text" id="editCarModel" placeholder="Модель авто" required>
+                <textarea id="editProblemDescription" placeholder="Описание проблемы"></textarea>
+                <input type="text" id="editClientName" placeholder="ФИО клиента" required>
+                <input type="text" id="editClientPhone" placeholder="Номер телефона">
+                <input type="text" id="editStatus" placeholder="Статус заявки" required>
+                <input type="text" id="editMechanicId" placeholder="ID механика">
+                <button type="submit">Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const requestsList = document.getElementById('requestsList');
+        const editModal = document.getElementById('editModal');
+        const editForm = document.getElementById('editForm');
+        const closeEditModal = document.getElementsByClassName('close')[0];
+
+        // Функция для загрузки заявок
+        async function loadRequests() {
+            try {
+                const response = await fetch('/requests');
+                const requests = await response.json();
+                requestsList.innerHTML = '';
+                requests.forEach(request => {
+                    const requestItem = document.createElement('div');
+                    requestItem.innerHTML = `
+                        <div>
+                            <h3>Заявка №${request.id}</h3>
+                            <p>Дата добавления: ${request.date_added}</p>
+                            <p>Вид авто: ${request.car_type}</p>
+                            <p>Модель авто: ${request.car_model}</p>
+                            <p>Описание проблемы: ${request.problem_description}</p>
+                            <p>ФИО клиента: ${request.client_name}</p>
+                            <p>Номер телефона: ${request.client_phone}</p>
+                            <p>Статус: ${request.status}</p>
+                            <p>ID механика: ${request.mechanic_id}</p>
+                            <button onclick="openEditModal(${request.id})">Редактировать</button>
+                        </div>
+                    `;
+                    requestsList.appendChild(requestItem);
+                });
+            } catch (err) {
+                console.error(err);
+                document.getElementById('message').innerText = 'Ошибка при загрузке заявок';
+            }
+        }
+
+        // Открытие модального окна для редактирования заявки
+        async function openEditModal(id) {
+            try {
+                const response = await fetch(`/requests/${id}`);
+                const request = await response.json();
+                document.getElementById('editDateAdded').value = request.date_added;
+                document.getElementById('editCarType').value = request.car_type;
+                document.getElementById('editCarModel').value = request.car_model;
+                document.getElementById('editProblemDescription').value = request.problem_description;
+                document.getElementById('editClientName').value = request.client_name;
+                document.getElementById('editClientPhone').value = request.client_phone;
+                document.getElementById('editStatus').value = request.status;
+                document.getElementById('editMechanicId').value = request.mechanic_id;
+                editForm.dataset.id = request.id;
+                editModal.style.display = 'block';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('message').innerText = 'Ошибка при загрузке заявки';
+            }
+        }
+
+        // Закрытие модального окна
+        closeEditModal.addEventListener('click', () => {
+            editModal.style.display = 'none';
+        });
+
+        // Закрытие модального окна при нажатии за его пределами
+        window.addEventListener('click', (event) => {
+            if (event.target === editModal) {
+                editModal.style.display = 'none';
+            }
+        });
+
+        // Обработка формы редактирования
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = editForm.dataset.id;
+            const date_added = document.getElementById('editDateAdded').value;
+            const car_type = document.getElementById('editCarType').value;
+            const car_model = document.getElementById('editCarModel').value;
+            const problem_description = document.getElementById('editProblemDescription').value;
+            const client_name = document.getElementById('editClientName').value;
+            const client_phone = document.getElementById('editClientPhone').value;
+            const status = document.getElementById('editStatus').value;
+            const mechanic_id = document.getElementById('editMechanicId').value;
+
+            try {
+                const response = await fetch(`/requests/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ date_added, car_type, car_model, problem_description, client_name, client_phone, status, mechanic_id })
+                });
+
+                if (response.ok) {
+                    document.getElementById('message').innerText = 'Заявка успешно обновлена';
+                    loadRequests();
+                    editModal.style.display = 'none';
+                } else {
+                    document.getElementById('message').innerText = 'Ошибка при обновлении заявки';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('message').innerText = 'Ошибка при обновлении заявки';
+            }
+        });
+
+        // Загрузка заявок при загрузке страницы
+        window.onload = loadRequests;
+    </script>
+</body>
+</html>-->

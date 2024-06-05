@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Система автосервиса</title>
+</head>
+<body>
+    <h1>Добавление заявки</h1>
+    <form id="requestForm">
+        <input type="date" id="date_added" placeholder="Дата добавления" required>
+        <input type="text" id="car_type" placeholder="Вид авто" required>
+        <input type="text" id="car_model" placeholder="Модель авто" required>
+        <textarea id="problem_description" placeholder="Описание проблемы"></textarea>
+        <input type="text" id="client_name" placeholder="ФИО клиента" required>
+        <input type="text" id="client_phone" placeholder="Номер телефона">
+        <select id="status" required>
+            <option value="new">Новая заявка</option>
+            <option value="in_progress">В процессе ремонта</option>
+            <option value="completed">Завершена</option>
+        </select>
+        <button type="submit">Добавить заявку</button>
+    </form>
+
+    <div id="message"></div>
+    <a href="/view-requests">Посмотреть заявки</a>
+    <a href="/login">Войти</a>
+
+    <script>
+        document.getElementById('requestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const requestData = {
+                date_added: document.getElementById('date_added').value,
+                car_type: document.getElementById('car_type').value,
+                car_model: document.getElementById('car_model').value,
+                problem_description: document.getElementById('problem_description').value,
+                client_name: document.getElementById('client_name').value,
+                client_phone: document.getElementById('client_phone').value,
+                status: document.getElementById('status').value,
+            };
+
+            try {
+                const response = await fetch('/requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    document.getElementById('message').innerText = 'Заявка успешно отправлена!';
+                    document.getElementById('requestForm').reset();
+                } else {
+                    document.getElementById('message').innerText = 'Ошибка при отправке заявки.';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('message').innerText = 'Ошибка при отправке заявки.';
+            }
+        });
+    </script>
+</body>
+</html>
