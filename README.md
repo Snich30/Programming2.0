@@ -1,9 +1,13 @@
-https://youtu.be/p3RFMEixUOE?si=4pOFe2BRLqZN6ErL
+# ABOBA
 
-INSERT INTO persons (username, password, role) VALUES ('admin', 'adminpassword', 'admin'); - добавление админа
+[YOUTUBE](https://youtu.be/p3RFMEixUOE?si=4pOFe2BRLqZN6ErL) - Гайд
 
+### Добавление админа
+```
+INSERT INTO persons (username, password, role) VALUES ('admin', 'adminpassword', 'admin');
+``` 
 
-
+```
 {
   "name": "demo-ex",
   "version": "1.0.0",
@@ -25,3 +29,4 @@ INSERT INTO persons (username, password, role) VALUES ('admin', 'adminpassword',
     "nodemon": "^3.1.3"
   }
 }
+```
